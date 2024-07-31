@@ -52,7 +52,10 @@ _LIBCOMMON_EXPORT DynamicArray Common_dynamic_array_init(void);
 // append to a dynamic array x element.
 _LIBCOMMON_EXPORT void Common_dynamic_array_append(DynamicArray array, void *element);
 
-// frees a dynamic array.
+// frees a dynamic array but not the elements.
+_LIBCOMMON_EXPORT void Common_dynamic_array_destroy(DynamicArray array);
+
+// frees a dynamic array and its elements.
 _LIBCOMMON_EXPORT void Common_dynamic_array_free(DynamicArray array);
 
 // optionals (util for avoiding usage of NULL)
@@ -108,6 +111,36 @@ _LIBCOMMON_EXPORT void Common_optional_free_data(Optional *optional);
 // also frees the data if it's found that optional->data != NULL
 // NOTE: Use this when you call Common_optional_alloc_with or Common_optional_alloc_none
 _LIBCOMMON_EXPORT void Common_optional_free(Optional *optional);
+
+// Optional specific dynamic arrays implementation
+
+typedef struct optional_array_t {
+    size_t len;
+    size_t cap;
+    Optional **elements;
+} *OptionalArray;
+
+// creates a new optional array (allocated).
+_LIBCOMMON_EXPORT OptionalArray Common_optional_array_init(void);
+
+// frees a complete optional array but not the elements inside
+_LIBCOMMON_EXPORT void Common_optional_array_destroy(OptionalArray array);
+
+// frees a complete optional array and every optional inside
+_LIBCOMMON_EXPORT void Common_optional_array_free(OptionalArray array);
+
+// appends a new element to a given OptionalArray, requires an *Optional<void*>
+// must be used with `Common_optional_alloc_with()`.
+_LIBCOMMON_EXPORT void Common_optional_array_append(OptionalArray array, Optional *optional);
+
+// macro to iterate through an Arrays
+
+#define Common_foreach(array, type, variablename) \
+    for (size_t i = 0; i < (array)->len; ++i) { \
+        LCOMMON_ASSERT((array)->elements[i] != NULL, "should be able to obtain elements from OptionalArray"); \
+        type *variablename = (type*) (array)->elements[i]; \
+
+#define Common_endforeach }
 
 // defer macro-based implementation
 // thanks to https://gist.github.com/baruch/f005ce51e9c5bd5c1897ab24ea1ecf3b

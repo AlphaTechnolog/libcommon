@@ -53,13 +53,17 @@ void Common_dynamic_array_append(DynamicArray array, void *element) {
     }
 }
 
+void Common_dynamic_array_destroy(DynamicArray array) {
+    LCOMMON_FREE(array->elements);
+    LCOMMON_FREE(array);
+}
+
 void Common_dynamic_array_free(DynamicArray array) {
     for (size_t i = 0; i < array->len; ++i) {
         LCOMMON_FREE(array->elements[i]);
     }
-
-    LCOMMON_FREE(array->elements);
-    LCOMMON_FREE(array);
+    
+    Common_dynamic_array_destroy(array);
 }
 
 Optional Common_optional_with(void *data) {
@@ -145,4 +149,37 @@ void Common_optional_free(Optional *optional) {
     Common_optional_free_data(optional);
     Common_optional_set_none(optional);
     LCOMMON_FREE(optional);
+}
+
+OptionalArray Common_optional_array_init(void) {
+    OptionalArray ret = Common_smalloc(sizeof(struct optional_array_t));
+
+    ret->cap = 10;
+    ret->len = 0;
+    ret->elements = Common_smalloc(sizeof(struct optional_t*) * ret->cap);
+
+    return ret;
+}
+
+void Common_optional_array_destroy(OptionalArray array) {
+    LCOMMON_FREE(array->elements);
+    LCOMMON_FREE(array);
+}
+
+void Common_optional_array_free(OptionalArray array) {
+    for (size_t i = 0; i < array->len; ++i) {
+        Optional *opt_value = array->elements[i];
+        LCOMMON_ASSERT(opt_value, "must be able to obtain elements from OptionalArray");
+        Common_optional_free(opt_value);
+    }
+
+    Common_optional_array_destroy(array);
+}
+
+void Common_optional_array_append(OptionalArray array, Optional *optional) {
+    array->elements[array->len++] = optional;
+    if (array->len >= array->cap) {
+        array->cap *= 2;
+        array->elements = Common_srealloc(array->elements, sizeof(struct optional_t*) * array->cap);
+    }
 }
