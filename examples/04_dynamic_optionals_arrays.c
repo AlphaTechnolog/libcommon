@@ -35,6 +35,8 @@ static void print_persons(DynamicArray persons) {
     }
 }
 
+// in this example we're gonna use DynamicArray with Optionals, but see 05_optional_array
+// for a simplified version which uses an OptionalArray
 int main() {
     // you'll have to think of this in something like DynamicArray<Optional<Persons>>
     DynamicArray persons = Common_dynamic_array_init();
