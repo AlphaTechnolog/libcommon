@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define WITH_LIBCOMMON_DEFINITIONS
 #include "../include/libcommon.h"
@@ -57,6 +58,7 @@ void Common_dynamic_array_free(DynamicArray array) {
         LCOMMON_FREE(array->elements[i]);
     }
 
+    LCOMMON_FREE(array->elements);
     LCOMMON_FREE(array);
 }
 
@@ -67,11 +69,35 @@ Optional Common_optional_with(void *data) {
     };
 }
 
+Optional *Common_optional_alloc_with(void *data) {
+    Optional *opt = Common_smalloc(sizeof(struct optional_t));
+
+    memcpy(
+        (void*) opt,
+        (const void*) &(struct optional_t) {data, LCOMMON_FALSE},
+        sizeof(struct optional_t)
+    );
+
+    return opt;
+}
+
 Optional Common_optional_none(void) {
     return (Optional) {
         .data = NULL,
         .is_none = LCOMMON_TRUE
     };
+}
+
+Optional *Common_optional_alloc_none(void) {
+    Optional *opt = Common_smalloc(sizeof(struct optional_t));
+
+    memcpy(
+        (void*) opt,
+        (const void*) &(struct optional_t) {NULL, LCOMMON_TRUE},
+        sizeof(struct optional_t)
+    );
+
+    return opt;
 }
 
 int Common_optional_is_none(Optional *optional) {
@@ -107,11 +133,16 @@ void Common_optional_set_none(Optional *optional) {
     optional->is_none = LCOMMON_TRUE;
 }
 
-void Common_optional_free(Optional *optional) {
-    if (optional->data != NULL) {
-        LCOMMON_FREE(optional->data);
+void Common_optional_free_data(Optional *optional) {
+    if (Common_optional_is_some(optional)) {
+        if (optional->data != NULL) {
+            LCOMMON_FREE(optional->data);
+        }
     }
+}
 
+void Common_optional_free(Optional *optional) {
+    Common_optional_free_data(optional);
     Common_optional_set_none(optional);
-    LCOMMON_ASSERT(Common_optional_is_none(optional), "optional should've data");
+    LCOMMON_FREE(optional);
 }

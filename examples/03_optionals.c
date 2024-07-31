@@ -65,12 +65,21 @@ static void freeing_example(void) {
     printf("\nfreeing_example()\n");
 
     Optional opt_sample_worker = Common_optional_with(new_person("Example", "Worker"));
-    display_person(Common_optional_unpack(&opt_sample_worker));
-    Common_optional_free(&opt_sample_worker);
-    LCOMMON_ASSERT(
-        Common_optional_is_none(&opt_sample_worker),
-        "after free, optional should've been marked as none"
-    );
+
+    defer({
+        Common_optional_free_data(&opt_sample_worker);
+        Common_optional_set_none(&opt_sample_worker);
+
+        LCOMMON_ASSERT(
+            Common_optional_is_none(&opt_sample_worker),
+            "optional should've been marked as none"
+        );
+    });
+
+    const Person worker = Common_optional_unpack(&opt_sample_worker);
+    LCOMMON_ASSERT(worker != NULL, "worker should have data");
+
+    display_person(worker);
 }
 
 static inline Optional obtain_array(void);

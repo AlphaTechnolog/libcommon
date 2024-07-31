@@ -67,6 +67,12 @@ _LIBCOMMON_EXPORT Optional Common_optional_with(void *data);
 // creates an optional value with no data (similar to null).
 _LIBCOMMON_EXPORT Optional Common_optional_none(void);
 
+// creates an allocated optional value with actual data.
+_LIBCOMMON_EXPORT Optional *Common_optional_alloc_with(void *data);
+
+// creates an optional value with no data but allocated.
+_LIBCOMMON_EXPORT Optional *Common_optional_alloc_none(void);
+
 // checks if the given optional is none or not.
 _LIBCOMMON_EXPORT int Common_optional_is_none(Optional *optional);
 
@@ -92,11 +98,15 @@ _LIBCOMMON_EXPORT void Common_optional_set_data(
 
 // sets optional->is_none as true but keeps optional->data intact, this optional
 // will be treated as if it's not containing data even if it's. In order to
-// avoid this, you may be interested in seeing: `Common_optional_free()`
+// avoid this, you may be interested in seeing: `Common_optional_free_data()`
 _LIBCOMMON_EXPORT void Common_optional_set_none(Optional *optional);
+
+// frees the data if a given optional has something at optional->data
+_LIBCOMMON_EXPORT void Common_optional_free_data(Optional *optional);
 
 // marks a given optional with or without data as a "none" optional.
 // also frees the data if it's found that optional->data != NULL
+// NOTE: Use this when you call Common_optional_alloc_with or Common_optional_alloc_none
 _LIBCOMMON_EXPORT void Common_optional_free(Optional *optional);
 
 // defer macro-based implementation
