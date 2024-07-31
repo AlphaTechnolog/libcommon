@@ -20,11 +20,12 @@
     } while (0)
 
 // helper data types
+typedef int LCOMMON_BOOL;
 #define LCOMMON_TRUE 1
 #define LCOMMON_FALSE 0
 
-_LIBCOMMON_EXPORT int Common_is_true(int n);
-_LIBCOMMON_EXPORT int Common_is_false(int n);
+_LIBCOMMON_EXPORT LCOMMON_BOOL Common_is_true(int n);
+_LIBCOMMON_EXPORT LCOMMON_BOOL Common_is_false(int n);
 
 // allocation utilities
 
@@ -33,6 +34,9 @@ _LIBCOMMON_EXPORT void *Common_smalloc(size_t len);
 
 // realloc but already checks for null pointer and throws an error.
 _LIBCOMMON_EXPORT void *Common_srealloc(void *ptr, size_t len);
+
+// same as `Common_smalloc` but already does sizeof() for you.
+#define Common_dsmalloc(type) Common_smalloc(sizeof(type));
 
 // helper for freeing data and then set it as null.
 #define LCOMMON_FREE(x) \
