@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #define WITH_LIBCOMMON_DEFINITIONS
+#define LIBCOMMON_ENABLE_EXPERIMENTAL_DEFER
 #include "../include/libcommon.h"
 
 static inline void die(const char *prefix) {
@@ -161,6 +163,38 @@ OptionalArray Common_optional_array_init(void) {
     return ret;
 }
 
+void Common_optional_array_set_data_at(
+    OptionalArray array,
+    const unsigned int n,
+    void *data
+) {
+    Common_foreach(array, Optional, cur) {
+        if (i == n) {
+            Common_optional_set_data(cur, data);
+            break;
+        }
+    }};
+}
+
+void Common_optional_array_set_none_at(OptionalArray array, const unsigned int n) {
+    Common_foreach(array, Optional, cur) {
+        if (i == n) {
+            Common_optional_set_none(cur);
+            break;
+        }
+    }};
+}
+
+void Common_optional_array_free_data_at(OptionalArray array, const unsigned int n) {
+    Common_foreach(array, Optional, cur) {
+        if (i == n) {
+            Common_optional_free_data(cur);
+            Common_optional_set_none(cur);
+            break;
+        }
+    }};
+}
+
 void Common_optional_array_destroy(OptionalArray array) {
     LCOMMON_FREE(array->elements);
     LCOMMON_FREE(array);
@@ -182,4 +216,45 @@ void Common_optional_array_append(OptionalArray array, Optional *optional) {
         array->cap *= 2;
         array->elements = Common_srealloc(array->elements, sizeof(struct optional_t*) * array->cap);
     }
+}
+
+size_t Common_strcount(const char *s) {
+    int i = 0;
+    for (; s[i] != '\0'; ++i);
+    return i;
+}
+
+char *Common_strmerge(const char *separator, const unsigned int n, ...) {
+    va_list vsprint;
+    va_start(vsprint, n);
+    defer({ va_end(vsprint); });
+
+    size_t cap = 1024;
+    char *result = Common_smalloc(cap);
+    memcpy(result, (const void*) "", 1);
+
+    for (unsigned int i = 0; i < n; ++i) {
+        char *cur = va_arg(vsprint, char*);
+
+        size_t counter = 0;
+        counter += Common_strcount(result) + 1;
+        counter += Common_strcount(cur) + 1;
+
+        LCOMMON_BOOL at_edge = i == 0 || i == n;
+
+        if (Common_is_false(at_edge))
+            counter += Common_strcount(separator) + 1;
+
+        if (counter >= cap) {
+            cap *= 2;
+            result = Common_srealloc(result, cap);
+        }
+
+        strcat(result, cur);
+
+        if (Common_is_true(at_edge))
+            strcat(result, separator);
+    }
+
+    return result;
 }

@@ -127,6 +127,19 @@ typedef struct optional_array_t {
 // creates a new optional array (allocated).
 _LIBCOMMON_EXPORT OptionalArray Common_optional_array_init(void);
 
+// sets data into the N optional in the given optional array.
+_LIBCOMMON_EXPORT void Common_optional_array_set_data_at(
+    OptionalArray array,
+    const unsigned int n,
+    void *data
+);
+
+// marks the optional at N in the optional array as none
+_LIBCOMMON_EXPORT void Common_optional_array_set_none_at(
+    OptionalArray array,
+    const unsigned int n
+);
+
 // frees a complete optional array but not the elements inside
 _LIBCOMMON_EXPORT void Common_optional_array_destroy(OptionalArray array);
 
@@ -145,6 +158,16 @@ _LIBCOMMON_EXPORT void Common_optional_array_append(OptionalArray array, Optiona
         type *variablename = (type*) (array)->elements[i]; \
 
 #define Common_endforeach }
+
+// strings helpers
+
+// counts the amount of characters present in a string
+_LIBCOMMON_EXPORT size_t Common_strcount(const char *s);
+
+// creates a new allocated string that concats N passed strings as variadic
+// arguments, by using the separator between every child.
+// note: the caller is responsable for deallocation, see `LCOMMON_FREE()`.
+_LIBCOMMON_EXPORT char *Common_strmerge(const char *separator, const unsigned int n, ...);
 
 // defer macro-based implementation
 // thanks to https://gist.github.com/baruch/f005ce51e9c5bd5c1897ab24ea1ecf3b
