@@ -20,19 +20,17 @@ static Person new_person(const char *name, const char *lastname) {
 // expects something similar as how in others langs you would have to type like this
 // `DynamicArray<*Optional<*struct person_t>>`.
 static void print_persons(DynamicArray persons) {
-    for (size_t i = 0; i < persons->len; ++i) {
-        Optional *opt_person = persons->elements[i];
-
+    Common_foreach(persons, Optional, opt_person) {
         if (Common_optional_is_none(opt_person)) {
-            fprintf(stderr, "Warning: Skipping person at index %ld\n", i + 1);
+            fprintf(stderr, "Warning: Skipping person at index: %ld\n", i + 1);
             continue;
         }
 
         const Person person = Common_optional_unpack(opt_person);
-        LCOMMON_ASSERT(person != NULL, "person shouldn't be a damaged pointer");
+        LCOMMON_ASSERT(person != NULL, "person should've data");
 
         printf("Person %ld: %s %s\n", i + 1, person->name, person->lastname);
-    }
+    }};
 }
 
 // in this example we're gonna use DynamicArray with Optionals, but see 05_optional_array
@@ -42,9 +40,7 @@ int main() {
     DynamicArray persons = Common_dynamic_array_init();
 
     defer({
-        for (size_t i = 0; i < persons->len; ++i) {
-            Optional *opt_person = (Optional*) persons->elements[i];
-
+        Common_foreach(persons, Optional, opt_person) {
             // here Common_optional_free_data simplifies lots of things, because else
             // we would have to also unpack the data and then free it manually...
             // we could also've used Common_optional_free() which will not only free the
@@ -56,7 +52,7 @@ int main() {
                 Common_optional_free_data(opt_person);
                 Common_optional_set_none(opt_person);
             }
-        }
+        }};
 
         Common_dynamic_array_free(persons);
     });

@@ -31,10 +31,9 @@ int main() {
     Common_dynamic_array_append(persons, new_person("John", "Doe"));
     Common_dynamic_array_append(persons, new_person("John2", "Doe2"));
 
-    for (size_t i = 0; i < persons->len; ++i) {
-        const Person person = persons->elements[i];
+    Common_foreach(persons, struct person_t, person) {
         printf("-> %s %s\n", person->name, person->lastname);
-    }
+    }};
 
     return 0;
 }

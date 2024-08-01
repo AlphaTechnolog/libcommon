@@ -100,11 +100,9 @@ static inline void display_persons(Optional *opt_workers_array) {
 
     DynamicArray workers = Common_optional_unpack(opt_workers_array);
 
-    for (size_t i = 0; i < workers->len; ++i) {
-        const Person worker = (Person) workers->elements[i];
-        LCOMMON_ASSERT(worker != NULL, "worker should be != NULL");
+    Common_foreach(workers, struct person_t, worker) {
         display_person(worker);
-    }
+    }};
 }
 
 static void deferred_usage_example(void) {
