@@ -106,6 +106,27 @@ Optional *Common_optional_alloc_none(void) {
     return opt;
 }
 
+Optional Common_optional_from(void *payload) {
+    return payload == NULL
+        ? Common_optional_none()
+        : Common_optional_with(payload);
+}
+
+Optional *Common_optional_alloc_from(void *payload) {
+    Optional *self = Common_dsmalloc(Optional);
+    Optional opt = Common_optional_from(payload);
+
+    memcpy(
+        (void*) self,
+        (const void*) &opt,
+        sizeof(Optional)
+    );
+
+    memset((void*) &opt, 0, sizeof(struct optional_t));
+
+    return self;
+}
+
 int Common_optional_is_none(Optional *optional) {
     return Common_is_true(optional->is_none);
 }
@@ -125,6 +146,12 @@ void *Common_optional_unpack_default(Optional *optional, void *default_value) {
     }
 
     return optional->data;
+}
+
+void *Common_optional_to_raw(Optional *optional) {
+    return Common_optional_is_some(optional)
+        ? Common_optional_unpack(optional)
+        : NULL;
 }
 
 void Common_optional_set_data(Optional *optional, void *data) {
@@ -147,10 +174,17 @@ void Common_optional_free_data(Optional *optional) {
     }
 }
 
+void Common_optional_destroy(Optional *optional) {
+    if (Common_optional_is_some(optional)) {
+        Common_optional_set_none(optional);
+    }
+
+    LCOMMON_FREE(optional);
+}
+
 void Common_optional_free(Optional *optional) {
     Common_optional_free_data(optional);
-    Common_optional_set_none(optional);
-    LCOMMON_FREE(optional);
+    Common_optional_destroy(optional);
 }
 
 OptionalArray Common_optional_array_init(void) {

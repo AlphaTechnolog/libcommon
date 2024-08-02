@@ -74,11 +74,18 @@ _LIBCOMMON_EXPORT Optional Common_optional_with(void *data);
 // creates an optional value with no data (similar to null).
 _LIBCOMMON_EXPORT Optional Common_optional_none(void);
 
+// creates an optional value by checking if it's null or not, if null
+// Common_optional_none() will be called, else Common_optional_with() is the one
+_LIBCOMMON_EXPORT Optional Common_optional_from(void *payload);
+
 // creates an allocated optional value with actual data.
 _LIBCOMMON_EXPORT Optional *Common_optional_alloc_with(void *data);
 
 // creates an optional value with no data but allocated.
 _LIBCOMMON_EXPORT Optional *Common_optional_alloc_none(void);
+
+// creates an optional from (see Common_optional_from()) but allocated.
+_LIBCOMMON_EXPORT Optional *Common_optional_alloc_from(void *payload);
 
 // checks if the given optional is none or not.
 _LIBCOMMON_EXPORT int Common_optional_is_none(Optional *optional);
@@ -97,6 +104,11 @@ _LIBCOMMON_EXPORT void *Common_optional_unpack_default(
     void *default_value
 );
 
+// converts the given optional into a raw value, so if the optional is none
+// it will return a raw NULL value, else, it will attempt to unpack the optional
+// and then proceed to return the unpacked data.
+_LIBCOMMON_EXPORT void *Common_optional_to_raw(Optional *optional);
+
 // sets data on a given optional no matter if it's already used or not.
 _LIBCOMMON_EXPORT void Common_optional_set_data(
     Optional *optional,
@@ -110,6 +122,9 @@ _LIBCOMMON_EXPORT void Common_optional_set_none(Optional *optional);
 
 // frees the data if a given optional has something at optional->data
 _LIBCOMMON_EXPORT void Common_optional_free_data(Optional *optional);
+
+// frees an allocated Optional pointer without freeing the data.
+_LIBCOMMON_EXPORT void Common_optional_destroy(Optional *optional);
 
 // marks a given optional with or without data as a "none" optional.
 // also frees the data if it's found that optional->data != NULL
