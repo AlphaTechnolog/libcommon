@@ -4,7 +4,7 @@
 #include "../include/libcommon.h"
 
 int main() {
-    char *string = Common_strmerge(", ", 2, "hello", "world");
+    char *string = Common_strmerge(", ", "hello", "world");
     defer({ LCOMMON_FREE(string); });
 
     printf("string is %s\n", string);

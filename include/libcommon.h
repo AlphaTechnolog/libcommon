@@ -23,6 +23,7 @@
 typedef int LCOMMON_BOOL;
 #define LCOMMON_TRUE 1
 #define LCOMMON_FALSE 0
+#define LCOMMON_TERMINATOR (void*) 0
 
 _LIBCOMMON_EXPORT LCOMMON_BOOL Common_is_true(int n);
 _LIBCOMMON_EXPORT LCOMMON_BOOL Common_is_false(int n);
@@ -176,13 +177,16 @@ _LIBCOMMON_EXPORT void Common_optional_array_append(OptionalArray array, Optiona
 
 // strings helpers
 
+// checks if a == b
+_LIBCOMMON_EXPORT LCOMMON_BOOL Common_strql(const char *a, const char *b);
+
 // counts the amount of characters present in a string
 _LIBCOMMON_EXPORT size_t Common_strcount(const char *s);
 
-// creates a new allocated string that concats N passed strings as variadic
-// arguments, by using the separator between every child.
-// note: the caller is responsable for deallocation, see `LCOMMON_FREE()`.
-_LIBCOMMON_EXPORT char *Common_strmerge(const char *separator, const unsigned int n, ...);
+// creates a new allocated string joining them all with the given separator. The caller is
+// responsible for freeing its memory by calling LCOMMON_FREE() on it after usage.
+_LIBCOMMON_EXPORT char *__private__Common_strmerge(const char *separator, const char *first, ...);
+#define Common_strmerge(...) __private__Common_strmerge(__VA_ARGS__, LCOMMON_TERMINATOR)
 
 // defer macro-based implementation
 // thanks to https://gist.github.com/baruch/f005ce51e9c5bd5c1897ab24ea1ecf3b

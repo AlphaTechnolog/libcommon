@@ -31,7 +31,7 @@ all: $(LIB_TARGET) $(EXAMPLES_TARGETS)
 # Rule to build the library
 $(LIB_TARGET): $(LIB_OBJ)
 	ar rcs $@ $^
-	rm $(LIB_DIR)/*.o
+	@rm $(LIB_DIR)/*.o
 
 $(LIB_OBJ): $(LIB_SRC)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -40,7 +40,7 @@ $(LIB_OBJ): $(LIB_SRC)
 $(BIN_DIR)/common_%: $(EXAMPLES_DIR)/%.c $(LIB_TARGET)
 	$(CC) $(CFLAGS) -c $< -o $(BIN_DIR)/$*.o
 	$(CC) $(CFLAGS) -o $@ $(BIN_DIR)/$*.o -L$(LIB_DIR) -l$(LIB_NAME)
-	rm $(BIN_DIR)/$*.o
+	@rm $(BIN_DIR)/$*.o
 
 # Install the built library in the system
 install: all

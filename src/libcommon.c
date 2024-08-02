@@ -252,32 +252,48 @@ void Common_optional_array_append(OptionalArray array, Optional *optional) {
     }
 }
 
+LCOMMON_BOOL Common_streql(const char *a, const char *b) {
+    LCOMMON_BOOL ret = LCOMMON_TRUE;
+    for (int i = 0; a[i] != '\0'; ++i) {
+        if (a[i] != b[i]) {
+            ret = LCOMMON_FALSE;
+            break;
+        }
+    }
+
+    return ret;
+}
+
 size_t Common_strcount(const char *s) {
     int i = 0;
     for (; s[i] != '\0'; ++i);
     return i;
 }
 
-char *Common_strmerge(const char *separator, const unsigned int n, ...) {
+char *__private__Common_strmerge(const char *separator, const char *first, ...) {
     va_list vsprint;
-    va_start(vsprint, n);
+    va_start(vsprint, first);
     defer({ va_end(vsprint); });
 
-    size_t cap = 1024;
+    size_t cap = 124;
     char *result = Common_smalloc(cap);
-    memcpy(result, (const void*) "", 1);
 
-    for (unsigned int i = 0; i < n; ++i) {
-        char *cur = va_arg(vsprint, char*);
+    memcpy(result, (const void*) first, strlen(first) + 1);
+    strcat(result, separator);
 
+    char *cur;
+
+    int j = -1;
+    int i = j + 1;
+
+    for (; (cur = va_arg(vsprint, char*)) != LCOMMON_TERMINATOR; ++i, ++j) {
         size_t counter = 0;
         counter += Common_strcount(result) + 1;
         counter += Common_strcount(cur) + 1;
 
-        LCOMMON_BOOL at_edge = i == 0 || i == n;
-
-        if (Common_is_false(at_edge))
+        if (i > 1) {
             counter += Common_strcount(separator) + 1;
+        }
 
         if (counter >= cap) {
             cap *= 2;
@@ -285,10 +301,20 @@ char *Common_strmerge(const char *separator, const unsigned int n, ...) {
         }
 
         strcat(result, cur);
-
-        if (Common_is_true(at_edge))
-            strcat(result, separator);
+        strcat(result, separator);
     }
+
+    char first_with_sep[Common_strcount(first) + Common_strcount(separator) + 1];
+    sprintf(first_with_sep, "%s%s", first, separator);
+
+    // removing seps when there's actually va args that have been iterated at
+    // and removing it if the result is just the first one + an uneeded sep.
+    if (j >= 0 || Common_streql(result, first_with_sep)) {
+        result[strlen(result) - strlen(separator)] = '\0';
+    }
+
+    // using the right amount of memory.
+    result = Common_srealloc(result, strlen(result) + 1);
 
     return result;
 }
