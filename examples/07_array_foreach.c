@@ -15,11 +15,9 @@ static void dynamic_array_demo(void) {
     int n = 4;
     Common_dynamic_array_append(integer_array, (void*) &n);
 
-    // Common_foreach simplifies the task of iterating through an array, old way can be
-    // found in the older examples.
-    Common_foreach(integer_array, int, cur) {
+    Common_foreach(integer_array, int, cur, {
         printf("-> %d\n", *cur);
-    } Common_endforeach;
+    });
 }
 
 static inline int streql(const char *a, const char *b) {
@@ -43,10 +41,10 @@ static void optional_array_demo(void) {
     Common_optional_array_append(array, Common_optional_alloc_none());
     Common_optional_array_append(array, Common_optional_alloc_with(allocated_string));
 
-    Common_foreach(array, Optional, opt_element) {
+    Common_foreach(array, Optional, opt_element, {
         const char *string = Common_optional_unpack_default(opt_element, "no value");
         printf("-> %ld: %s\n", i + 1, string);
-    } Common_endforeach;
+    });
 }
 
 int main() {

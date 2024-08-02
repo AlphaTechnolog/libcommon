@@ -152,12 +152,12 @@ _LIBCOMMON_EXPORT void Common_optional_array_append(OptionalArray array, Optiona
 
 // macro to iterate through an Arrays
 
-#define Common_foreach(array, type, variablename) \
+#define Common_foreach(array, type, variablename, body) \
     for (size_t i = 0; i < (array)->len; ++i) { \
-        LCOMMON_ASSERT((array)->elements[i] != NULL, "should be able to obtain elements from OptionalArray"); \
+        LCOMMON_ASSERT((array)->elements[i] != NULL, "should be able to obtain elements from a growable array"); \
         type *variablename = (type*) (array)->elements[i]; \
-
-#define Common_endforeach }
+        body; \
+    }
 
 // strings helpers
 

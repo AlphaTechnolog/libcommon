@@ -90,12 +90,12 @@ static void print_friend(int level, Person person) {
     }
 
 static void display_persons(OptionalArray persons_array) {
-    Common_foreach(persons_array, Optional, opt_person) {
+    Common_foreach(persons_array, Optional, opt_person, {
         if (Common_optional_is_none(opt_person)) W_CONTINUE(i);
         Person person = Common_optional_unpack(opt_person);
         printf("-> Person #%ld: %s %s\n", i + 1, person->name, person->lastname);
         print_friend(1, person);
-    } Common_endforeach;
+    });
 }
 
 int main() {
@@ -105,7 +105,7 @@ int main() {
     // end using Common_optional_array_destroy() to free the array->elements and the array
     // pointers, but we've to also free all the optionals.
     defer({
-        Common_foreach(persons_array, Optional, opt_person) {
+        Common_foreach(persons_array, Optional, opt_person, {
             if (Common_optional_is_some(opt_person)) {
                 Person person = (Person) Common_optional_unpack(opt_person);
 
@@ -118,7 +118,7 @@ int main() {
             }
             
             Common_optional_free(opt_person);
-        } Common_endforeach;
+        });
 
         Common_optional_array_destroy(persons_array);
     });

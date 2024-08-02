@@ -168,31 +168,31 @@ void Common_optional_array_set_data_at(
     const unsigned int n,
     void *data
 ) {
-    Common_foreach(array, Optional, cur) {
+    Common_foreach(array, Optional, cur, {
         if (i == n) {
             Common_optional_set_data(cur, data);
             break;
         }
-    }};
+    });
 }
 
 void Common_optional_array_set_none_at(OptionalArray array, const unsigned int n) {
-    Common_foreach(array, Optional, cur) {
+    Common_foreach(array, Optional, cur, {
         if (i == n) {
             Common_optional_set_none(cur);
             break;
         }
-    }};
+    });
 }
 
 void Common_optional_array_free_data_at(OptionalArray array, const unsigned int n) {
-    Common_foreach(array, Optional, cur) {
+    Common_foreach(array, Optional, cur, {
         if (i == n) {
             Common_optional_free_data(cur);
             Common_optional_set_none(cur);
             break;
         }
-    }};
+    });
 }
 
 void Common_optional_array_destroy(OptionalArray array) {

@@ -100,9 +100,9 @@ static inline void display_persons(Optional *opt_workers_array) {
 
     DynamicArray workers = Common_optional_unpack(opt_workers_array);
 
-    Common_foreach(workers, struct person_t, worker) {
+    Common_foreach(workers, struct person_t, worker, {
         display_person(worker);
-    }};
+    });
 }
 
 static void deferred_usage_example(void) {
