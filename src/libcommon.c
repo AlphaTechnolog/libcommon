@@ -230,6 +230,10 @@ void Common_optional_array_free_data_at(OptionalArray array, const unsigned int 
 }
 
 void Common_optional_array_destroy(OptionalArray array) {
+    Common_foreach(array, Optional, cur, {
+        Common_optional_destroy(cur);
+    });
+
     LCOMMON_FREE(array->elements);
     LCOMMON_FREE(array);
 }
@@ -270,12 +274,14 @@ size_t Common_strcount(const char *s) {
     return i;
 }
 
+#define STRMERGE_CHUNK_SIZE 124
+
 char *__private__Common_strmerge(const char *separator, const char *first, ...) {
     va_list vsprint;
     va_start(vsprint, first);
     defer({ va_end(vsprint); });
 
-    size_t cap = 124;
+    size_t cap = STRMERGE_CHUNK_SIZE;
     char *result = Common_smalloc(cap);
 
     memcpy(result, (const void*) first, strlen(first) + 1);
@@ -296,7 +302,7 @@ char *__private__Common_strmerge(const char *separator, const char *first, ...) 
         }
 
         if (counter >= cap) {
-            cap *= 2;
+            cap += STRMERGE_CHUNK_SIZE;
             result = Common_srealloc(result, cap);
         }
 
@@ -314,6 +320,80 @@ char *__private__Common_strmerge(const char *separator, const char *first, ...) 
     }
 
     // using the right amount of memory.
+    result = Common_srealloc(result, strlen(result) + 1);
+
+    return result;
+}
+
+char *Common_strmerge_from_array(
+    const char *separator,
+    const DynamicArray dynamic_array
+) {
+    size_t cap = STRMERGE_CHUNK_SIZE;
+    char *result = Common_smalloc(cap);
+    memcpy((void*) result, (const void*) (char*) "", 1);
+
+    Common_foreach(dynamic_array, char, element, {
+        size_t counter = strlen(result) + strlen(element) + 1;
+        LCOMMON_BOOL gonna_add_sep = i < dynamic_array->len - 1;
+
+        if (gonna_add_sep == LCOMMON_TRUE) {
+            counter += strlen(separator) + 1;
+        }
+
+        if (counter >= strlen(result)) {
+            cap += STRMERGE_CHUNK_SIZE;
+            result = Common_srealloc(result, cap);
+        }
+
+        strcat(result, element);
+
+        if (gonna_add_sep) {
+            strcat(result, separator);
+        }
+    });
+
+    // using the right memory amount
+    result = Common_srealloc(result, strlen(result) + 1);
+
+    return result;
+}
+
+char *Common_strmerge_from_optional_array(
+    const char *separator,
+    const OptionalArray optional_array
+) {
+    size_t cap = STRMERGE_CHUNK_SIZE;
+    char *result = Common_smalloc(cap);
+    memcpy((void*) result, (const void*) (char*) "", 1);
+
+    Common_foreach(optional_array, Optional, opt_element, {
+        if (Common_optional_is_none(opt_element)) {
+            continue;
+        }
+
+        char *element = Common_optional_unpack(opt_element);
+
+        size_t counter = strlen(result) + strlen(element) + 1;
+        LCOMMON_BOOL gonna_add_sep = i < optional_array->len - 1;
+
+        if (gonna_add_sep == LCOMMON_TRUE) {
+            counter += strlen(separator) + 1;
+        }
+
+        if (counter >= strlen(result)) {
+            cap += STRMERGE_CHUNK_SIZE;
+            result = Common_srealloc(result, cap);
+        }
+
+        strcat(result, element);
+
+        if (gonna_add_sep) {
+            strcat(result, separator);
+        }
+    });
+
+    // using the right memory amount
     result = Common_srealloc(result, strlen(result) + 1);
 
     return result;

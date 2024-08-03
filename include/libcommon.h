@@ -156,7 +156,8 @@ _LIBCOMMON_EXPORT void Common_optional_array_set_none_at(
     const unsigned int n
 );
 
-// frees a complete optional array but not the elements inside
+// frees a complete optional array, and also the allocated memory of every suboptional
+// but not the allocated memory of the data inside the children's optionals.
 _LIBCOMMON_EXPORT void Common_optional_array_destroy(OptionalArray array);
 
 // frees a complete optional array and every optional inside
@@ -187,6 +188,22 @@ _LIBCOMMON_EXPORT size_t Common_strcount(const char *s);
 // responsible for freeing its memory by calling LCOMMON_FREE() on it after usage.
 _LIBCOMMON_EXPORT char *__private__Common_strmerge(const char *separator, const char *first, ...);
 #define Common_strmerge(...) __private__Common_strmerge(__VA_ARGS__, LCOMMON_TERMINATOR)
+
+// creates a new allocated string joining every element from the given dynamic array using
+// a given separator. The called is responsible for freeing its allocated memory by calling
+// LCOMMON_FREE() on it, after the desired usage.
+_LIBCOMMON_EXPORT char *Common_strmerge_from_array(
+    const char *separator,
+    const DynamicArray dynamic_array
+);
+
+// given an OptionalArray<*const char>, this returns an allocated string which joins every
+// Optional that's not a None value, the caller is responsible for freeing its allocated
+// memory after the desired usage.
+_LIBCOMMON_EXPORT char *Common_strmerge_from_optional_array(
+    const char *separator,
+    const OptionalArray optional_array
+);
 
 // defer macro-based implementation
 // thanks to https://gist.github.com/baruch/f005ce51e9c5bd5c1897ab24ea1ecf3b
