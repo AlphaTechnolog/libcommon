@@ -55,8 +55,7 @@ cc -o application main.o -Lextern/libcommon/lib -lcommon
 ```
 
 So this was an example of using libcommon's optionals and the defer statement provided by libcommon... take in mind that enabling
-libcommon can be dangerous if you're targeting another compilers diff than gcc, defer atm is only supported for gcc due to macros
-reasons, am still working on porting it for another compilers :(
+libcommon's defer statement can be problematic if you're targeting another compiler different than gcc, this is because defer atm is only supported for gcc because of how the macro is done. Anyways, I am still working on porting it for other compilers :(
 
 ## Documentation
 
